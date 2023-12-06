@@ -75,7 +75,7 @@ class MyPyQT_Form(QtWidgets.QWidget, Ui_Form):
                             QtCore.Qt.WindowStaysOnTopHint |  # 窗体总在最前端
                             QtCore.Qt.WindowCloseButtonHint)
         self.setWindowIcon(QIcon(':/favicon.ico'))
-        self.setWindowTitle("（新）欢乐斗地主修复版v1.3")
+        self.setWindowTitle("（新）欢乐斗地主修复版v1.4")
         self.setFixedSize(self.width(), self.height())  # 固定窗体大小
         self.move(240, 100)
         # self.setWindowIcon(QIcon('pics/favicon.ico'))
@@ -205,14 +205,12 @@ class MyPyQT_Form(QtWidgets.QWidget, Ui_Form):
 
         # 识别玩家手牌
         self.user_hand_cards_real = self.find_my_cards()
-        print("开始我的手牌：", self.user_hand_cards_real)
         while len(self.user_hand_cards_real) != 17 and len(self.user_hand_cards_real) != 20:
             self.detect_start_btn()
             if not self.RunGame:
                 break
             self.sleep(200)
             self.user_hand_cards_real = self.find_my_cards()
-        print("UUUUUUUUUUUUUUUUUUUU")
         self.user_hand_cards_env = [RealCard2EnvCard[c] for c in list(self.user_hand_cards_real)]
         # 识别三张底牌
         self.three_landlord_cards_real = self.find_landlord_cards()
