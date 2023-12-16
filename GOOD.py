@@ -342,6 +342,7 @@ class MyPyQT_Form(QtWidgets.QWidget, Ui_Form):
                     hand_cards_str = ''.join(
                         [EnvCard2RealCard[c] for c in self.env.info_sets[self.user_position].player_hand_cards])
 
+                    # if len(hand_cards_str) >= len(action_message["action"]):
                     result = helper.LocateOnScreen("play_card", region=self.PassBtnPos, confidence=0.7)
                     while result is None:
                         self.detect_start_btn()
@@ -354,10 +355,6 @@ class MyPyQT_Form(QtWidgets.QWidget, Ui_Form):
                     self.sleep(200)
 
                     helper.ClickOnImage("play_card", region=self.PassBtnPos, confidence=0.7)
-                    self.sleep(200)
-                    result = helper.LocateOnScreen("play_card", region=self.PassBtnPos, confidence=0.7)
-                    if result is not None:
-                        self.click_cards(action_message["action"])
 
                     ani = self.animation(action_message["action"])
                     if ani:
@@ -377,7 +374,7 @@ class MyPyQT_Form(QtWidgets.QWidget, Ui_Form):
                         break
 
                 self.PredictedCard.setStyleSheet('background-color: rgba(0, 255, 0, 0);')
-                self.sleep(200)
+                self.sleep(500)
                 self.play_order = 1
 
             elif self.play_order == 1:
@@ -429,7 +426,7 @@ class MyPyQT_Form(QtWidgets.QWidget, Ui_Form):
                                                                    self.other_played_cards_real)
                 # print("记牌器：", self.other_hands_cards_str)
                 self.cards_recorder(self.other_hands_cards_str)
-                self.sleep(200)
+                self.sleep(400)
                 self.play_order = 2
 
             elif self.play_order == 2:
@@ -483,7 +480,7 @@ class MyPyQT_Form(QtWidgets.QWidget, Ui_Form):
                                                                    self.other_played_cards_real)
                 # print("记牌器：", self.other_hands_cards_str)
                 self.cards_recorder(self.other_hands_cards_str)
-                self.sleep(300)
+                self.sleep(600)
                 self.play_order = 0
 
         if self.loop_sign == 0:
@@ -642,6 +639,9 @@ class MyPyQT_Form(QtWidgets.QWidget, Ui_Form):
             if not self.RunGame:
                 break
             print("未找到手牌区域")
+            img, _ = helper.Screenshot()
+            img = cv2.cvtColor(np.asarray(img), cv2.COLOR_RGB2BGR)
+            cv2.imwrite("hand_cards_debug.png", img)
             self.sleep(500)
             res1 = helper.LocateOnScreen("up_left", region=self.MyHandCardsPos, confidence=0.65)
         pos = res1[0] + 6, res1[1] + 7
@@ -672,7 +672,7 @@ class MyPyQT_Form(QtWidgets.QWidget, Ui_Form):
                 point = cars_pos[0] + 20, cars_pos[1] + 100
                 img, _ = helper.Screenshot()
                 img = cv2.cvtColor(np.asarray(img), cv2.COLOR_BGR2RGB)
-                check_one = self.find_cards(img=img, pos=(cars_pos[0] - 2, 565, 60, 60), mark="m", confidence=0.8)
+                check_one = self.find_cards(img=img, pos=(cars_pos[0] - 2, 567, 50, 60), mark="m", confidence=0.8)
                 # print("系统帮你点的牌：", check_one, "你要出的牌：", i)
 
                 if check_one == i and check_one != "D" and check_one != "X":
@@ -788,19 +788,19 @@ class MyPyQT_Form(QtWidgets.QWidget, Ui_Form):
                 jiabei_btn = helper.LocateOnScreen("jiabei_btn", region=self.GeneralBtnPos)
             print("《叫地主》, 《抢地主》, 《加倍》", jiaodizhu_btn, qiangdizhu_btn, jiabei_btn)
 
-            cards = self.find_my_cards()
-            while len(cards) != 17 and len(cards) != 20:
-                self.detect_start_btn()
-                if not self.RunGame:
-                    break
-                self.sleep(200)
-                cards = self.find_my_cards()
-            cards_str = "".join([card[0] for card in cards])
-            self.UserHandCards.setText("手牌：" + cards_str)
-            print("手牌：" + cards_str)
-            win_rate = BidModel.predict(cards_str)
-
             if not HaveBid:
+                cards = self.find_my_cards()
+                while len(cards) != 17 and len(cards) != 20:
+                    self.detect_start_btn()
+                    if not self.RunGame:
+                        break
+                    self.sleep(200)
+                    cards = self.find_my_cards()
+                cards_str = "".join([card[0] for card in cards])
+                self.UserHandCards.setText("手牌：" + cards_str)
+                print("手牌：" + cards_str)
+                win_rate = BidModel.predict(cards_str)
+
                 with open("cardslog.txt", "a") as f:
                     f.write(str(int(time.time())) + " " + cards_str + " " + str(round(win_rate, 2)) + "\n")
                 print("叫牌预估胜率：", win_rate)
@@ -897,6 +897,13 @@ class MyPyQT_Form(QtWidgets.QWidget, Ui_Form):
 
         if win_rate > self.JiabeiThreshold[is_stolen][0]:
             chaojijiabei_btn = helper.LocateOnScreen("chaojijiabei_btn", region=self.GeneralBtnPos)
+            img, _ = helper.Screenshot()
+            img = cv2.cvtColor(np.asarray(img), cv2.COLOR_BGR2RGB)
+            cv2.imwrite("debug3.png", img)
+            while chaojijiabei_btn is None:
+                self.sleep(200)
+                print("没找到《超级加倍》按钮")
+                chaojijiabei_btn = helper.LocateOnScreen("chaojijiabei_btn", region=self.GeneralBtnPos)
             if chaojijiabei_btn is not None:
                 helper.ClickOnImage("chaojijiabei_btn", region=self.GeneralBtnPos)
             else:

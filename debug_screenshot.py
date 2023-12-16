@@ -4,12 +4,13 @@ import cv2
 import numpy as np
 
 GameHelper = GameHelper()
-GameHelper.ScreenZoomRate = 1.0
 # img, _ = GameHelper.Screenshot()
-img = cv2.imread("1.png")
+
+img = cv2.imread("debug.png")
 img = cv2.cvtColor(np.asarray(img), cv2.COLOR_BGR2RGB)
+# cv2.imwrite("111.png", img)
 
 # img, _ = GameHelper.Screenshot()
-img = gh.DrawRectWithText(img, (400, 380, 500, 200), "test")
-# cv2.imwrite("111.png", img)
+img = gh.DrawRectWithText(img, (550, 565, 60, 60), "test")
+
 gh.ShowImg(img)
